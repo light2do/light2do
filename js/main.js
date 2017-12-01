@@ -14,44 +14,44 @@ var daysName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
 var toDoList = new Array();
 var alreadyDoneList = new Array();
 
+var toDoListName = "toDoList";
+var alreadyDoneListName = "alreadyDoneList";
+
 var isMyStorage = false;
 if (window.localStorage) {
     console.log("local storage in use");
     isMyStorage = true;
-    if (localStorage.getItem("toDoList")) {
-        console.log("toDoList in local Storage");
-        var toDoListFromLocal = JSON.parse(localStorage.getItem("toDoList"));
-        if (toDoListFromLocal.length > 0) {
-            for (var i = 0; i < toDoListFromLocal.length; i++) {
-                var text = JSON.parse(localStorage.getItem("toDoList"))[i].text;
-                var date = JSON.parse(localStorage.getItem("toDoList"))[i].date;
-                var helpDate = new Date(date);
-                toDoList.push(new ToDoItem(text, helpDate));
-            }
-        }
-    }
-    if (localStorage.getItem("alreadyDoneList")) {
-        var _toDoListFromLocal = JSON.parse(localStorage.getItem("alreadyDoneList"));
-        if (_toDoListFromLocal.length > 0) {
-            for (var _i = 0; _i < _toDoListFromLocal.length; _i++) {
-                var _text = JSON.parse(localStorage.getItem("alreadyDoneList"))[_i].text;
-                var _date = JSON.parse(localStorage.getItem("alreadyDoneList"))[_i].date;
-                var _helpDate = new Date(_date);
-                alreadyDoneList.push(new ToDoItem(_text, _helpDate));
-            }
-        }
+    getFromLocal(toDoList, toDoListName);
+    getFromLocal(alreadyDoneList, alreadyDoneListName);
+}
+
+// save to local storage help function
+function saveToDoLocalHelp(arr, listName) {
+    if (arr.length > 0) {
+        localStorage.setItem(listName, JSON.stringify(arr));
+    } else {
+        localStorage.removeItem(listName);
     }
 }
 
+// Save arrays to local storage
 function saveToDoLocal() {
-    if (toDoList.length > 0) {
-        localStorage.setItem("toDoList", JSON.stringify(toDoList));
-    } else {
-        localStorage.removeItem("toDoList");
-    }if (alreadyDoneList.length > 0) {
-        localStorage.setItem("alreadyDoneList", JSON.stringify(alreadyDoneList));
-    } else {
-        localStorage.removeItem("alreadyDoneList");
+    saveToDoLocalHelp(toDoList, toDoListName);
+    saveToDoLocalHelp(alreadyDoneList, alreadyDoneListName);
+}
+
+// get and parse array from local storage
+function getFromLocal(arr, elemName) {
+    if (localStorage.getItem(elemName)) {
+        var listFromLocal = JSON.parse(localStorage.getItem(elemName));
+        if (listFromLocal.length > 0) {
+            for (var i = 0; i < listFromLocal.length; i++) {
+                var text = JSON.parse(localStorage.getItem(elemName))[i].text;
+                var date = JSON.parse(localStorage.getItem(elemName))[i].date;
+                var helpDate = new Date(date);
+                arr.push(new ToDoItem(text, helpDate));
+            }
+        }
     }
 }
 
@@ -102,14 +102,14 @@ submitInput.addEventListener("click", function () {
     addItem();
 });
 
-function createItemContent(array, elem, i) {
+function createItemContent(array, listName, i) {
     var helpItemVar = "";
-    if (elem === "toDo") {
+    if (listName == toDoListName) {
         helpItemVar = "OK";
     } else {
         helpItemVar = "DO";
     }
-    var itemContent = "\n        <div class=\"toDoList-Container\">\n            <div class=\"toDoList-content\">\n                <p class=\"toDoDate\">" + daysName[array[i].date.getDay()] + " - " + array[i].date.toLocaleDateString() + " - " + array[i].date.toLocaleTimeString() + "</p>\n                <p class=\"toDoText\">" + array[i].text + "</p>\n            </div>\n            <div class=\"toDoList-controlContainer\">\n                <div class=\"toDoList-controlItem danger\" id=\"" + elem + "_delete_" + i + "\">X</div>\n                <div class=\"toDoList-controlItem\" id=\"" + elem + "_done_" + i + "\">" + helpItemVar + "</div>\n            </div>\n        </div>\n    ";
+    var itemContent = "\n        <div class=\"toDoList-Container\">\n            <div class=\"toDoList-content\">\n                <p class=\"toDoDate\">" + daysName[array[i].date.getDay()] + " - " + array[i].date.toLocaleDateString() + " - " + array[i].date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + "</p>\n                <p class=\"toDoText\">" + array[i].text + "</p>\n            </div>\n            <div class=\"toDoList-controlContainer\">\n                <div class=\"toDoList-controlItem danger\" id=\"" + listName + "_delete_" + i + "\">X</div>\n                <div class=\"toDoList-controlItem\" id=\"" + listName + "_done_" + i + "\">" + helpItemVar + "</div>\n            </div>\n        </div>\n    ";
     return itemContent;
 }
 
@@ -117,32 +117,32 @@ function createItemContent(array, elem, i) {
 function drawToDoList() {
     clearListView(toDoListView);
     if (toDoList.length > 0) {
-        var _loop = function _loop(_i2) {
+        var _loop = function _loop(i) {
             var listItem = document.createElement("li");
 
-            listItem.innerHTML = createItemContent(toDoList, "toDo", _i2);
+            listItem.innerHTML = createItemContent(toDoList, toDoListName, i);
             toDoListView.appendChild(listItem);
 
             // delete item Event Listener
-            var deleteID = "toDo_delete_" + _i2;
+            var deleteID = toDoListName + "_delete_" + i;
             document.getElementById(deleteID).addEventListener("click", function () {
-                toDoList.splice(_i2, 1);
+                toDoList.splice(i, 1);
                 drawToDoList();
                 saveToDoLocal();
             });
             // done item Event Listener
-            var doneId = "toDo_done_" + _i2;
+            var doneId = toDoListName + "_done_" + i;
             document.getElementById(doneId).addEventListener("click", function () {
-                alreadyDoneList.unshift(toDoList[_i2]);
-                toDoList.splice(_i2, 1);
+                alreadyDoneList.unshift(toDoList[i]);
+                toDoList.splice(i, 1);
                 drawToDoList();
                 drawAlreadyDoneList();
                 saveToDoLocal();
             });
         };
 
-        for (var _i2 = 0; _i2 < toDoList.length; _i2++) {
-            _loop(_i2);
+        for (var i = 0; i < toDoList.length; i++) {
+            _loop(i);
         }
     } else {
         if (isMyStorage) {
@@ -158,32 +158,32 @@ function drawAlreadyDoneList() {
     if (alreadyDoneList.length > 0) {
         alreadyDoneHeading.style.display = "block";
 
-        var _loop2 = function _loop2(_i3) {
+        var _loop2 = function _loop2(i) {
             var listItem = document.createElement("li");
 
-            listItem.innerHTML = createItemContent(alreadyDoneList, "done", _i3);
+            listItem.innerHTML = createItemContent(alreadyDoneList, alreadyDoneListName, i);
             alreadyDoneListView.appendChild(listItem);
 
             // delete item Event Listener
-            var deleteID = "done_delete_" + _i3;
+            var deleteID = alreadyDoneListName + "_delete_" + i;
             document.getElementById(deleteID).addEventListener("click", function () {
-                alreadyDoneList.splice(_i3, 1);
+                alreadyDoneList.splice(i, 1);
                 drawAlreadyDoneList();
                 saveToDoLocal();
             });
             // do item Event Listener
-            var doneId = "done_done_" + _i3;
+            var doneId = alreadyDoneListName + "_done_" + i;
             document.getElementById(doneId).addEventListener("click", function () {
-                toDoList.unshift(alreadyDoneList[_i3]);
-                alreadyDoneList.splice(_i3, 1);
+                toDoList.unshift(alreadyDoneList[i]);
+                alreadyDoneList.splice(i, 1);
                 drawToDoList();
                 drawAlreadyDoneList();
                 saveToDoLocal();
             });
         };
 
-        for (var _i3 = 0; _i3 < alreadyDoneList.length; _i3++) {
-            _loop2(_i3);
+        for (var i = 0; i < alreadyDoneList.length; i++) {
+            _loop2(i);
         }
     } else {
         alreadyDoneHeading.style.display = "none";
