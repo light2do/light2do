@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Light2do | TO DO APP in Javasript</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192.png">
+</head>
+
+<body>
+    <h1>To-Do</h1>
+    <div class="container" id="mainContainer">
+        <div class="input-container">
+            <input id="mainTextInput" type="text" placeholder="I need to ...">
+            <input id="submitInput" type="submit" value="ADD">
+        </div>
+        <!-- TO DO LIST -->
+        <ul id="toDoListView"></ul>
+        <!-- ALREADY DONE LIST -->
+        <h3 id="alreadyDoneHeading">Already done</h3>
+        <ul id="alreadyDoneListView"></ul>
+    </div>
+
+    <script src="js/main-min.js"></script>
+</body>
+
+</html>
